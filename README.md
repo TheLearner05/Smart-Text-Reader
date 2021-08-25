@@ -19,8 +19,7 @@ Steps in the project:
 7)Giving this speech input to RaspberryPi
 8)Giving the speech as output via headphone using RaspberryPi.
 
-
-
+Hello
 
 
 (Please add if something is missed or needs to be improved)
