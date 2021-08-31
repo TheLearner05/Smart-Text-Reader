@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 from numpy.lib.type_check import imag
 
-img = cv2.imread(r"L:\final_year_project\test2.PNG")
+img = cv2.imread(r"L:\final_year_project\Smart-Text-Reader\test6.png")
+h, w, c = img.shape
+img = cv2.resize(img,(h//2,w//2))
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 gray = cv2.bitwise_not(gray)
 
@@ -14,8 +16,8 @@ angle = cv2.minAreaRect(coords)[-1]
 if angle < -45:
     angle = -(90 + angle)
 else:
-    angle = -angle
-
+    angle=0
+print(angle)
 h, w, c = img.shape
 
 center = (w//2, h//2)
@@ -28,7 +30,6 @@ cv2.putText(rotated, "Angle: {:.2f} degrees".format(
 print("[INFO] angle: {:.3f}".format(angle))
 cv2.imshow("Input", img)
 cv2.imshow("Rotated", rotated)
-
 
 cv2.waitKey(0)
 
