@@ -10,8 +10,9 @@ via headfone to blind students.
 
 Steps in the project:
 
-0)Deskewing the page
-1)Detection of Page Infront of student
+0)Detection of Page Infront of student 
+to get proper contour all 4 corners of book must be visible.
+1)Deskewing the page
 2)Detection of Text Blocks, paragraphs, headings,etc
 3)Deskewing the Text Blocks if required
 4)Preprocess the image so that pytesseract will work accuractly
