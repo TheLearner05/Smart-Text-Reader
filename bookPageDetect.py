@@ -1,24 +1,20 @@
 import numpy as np
 import cv2
 
-img = cv2.imread(r"L:\final_year_project\Smart-Text-Reader\test5.jpg")
-img = cv2.resize(img, (512, 512))
-imgg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-h, w = imgg.shape
-imgb = cv2.GaussianBlur(imgg, (5, 5), 1)
-can = cv2.Canny(imgb, 10, 50)
+img = cv2.imread(r"L:\final_year_project\Smart-Text-Reader\test1.jpg")
 kernal = np.ones((7, 2))
-imgdi = cv2.dilate(can, kernal, iterations=1)
-imger = cv2.erode(imgdi, kernal, iterations=1)
 
-imgC = img.copy()
 
-contours, hierarchy = cv2.findContours(
-    imger, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+def proprocess(img, kernal):
 
-#contours = sorted(contours, key=cv2.contourArea)
-cv2.drawContours(imgC, contours[-1], -1, (0, 255, 0), 3)
+    imgg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    imgb = cv2.medianBlur(imgg, 3)
+    canny = cv2.Canny(imgb, 10, 50)
+
+    imgdi = cv2.dilate(canny, kernal, iterations=1)
+    imger = cv2.erode(imgdi, kernal, iterations=1)
+    return imger
 
 
 def biggestContour(contours):
@@ -39,9 +35,6 @@ def biggestContour(contours):
     return biggest, max_area
 
 
-biggest, maxArea = biggestContour(contours)
-
-
 def reorder(cpoints):
     cpoints = cpoints.reshape((4, 2))
     cpointsn = np.zeros((4, 1, 2), dtype=np.int32)
@@ -56,19 +49,28 @@ def reorder(cpoints):
     return cpointsn
 
 
-if biggest.size != 0:
-    biggest = reorder(biggest)
-    cv2.drawContours(imgC, biggest, -1, (0, 255, 0), 3)
-    pts1 = np.float32(biggest)
-    pts2 = np.float32([[0, 0], [w, 0], [0, h], [w, h]])
-    matrix = cv2.getPerspectiveTransform(pts1, pts2)
-    imgCol = cv2.warpPerspective(img, matrix, (w, h))
+def pageDetect(img, kernal):
+    img = cv2.resize(img, (512, 512))
+    h, w = img.shape[:2]
+    imgC = img.copy()
+    imger = proprocess(img, kernal)
+    contours, hierarchy = cv2.findContours(
+        imger, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+    biggest, maxArea = biggestContour(contours)
+    if biggest.size != 0:
+        biggest = reorder(biggest)
+        cv2.drawContours(imgC, biggest, -1, (0, 255, 0), 3)
+        pts1 = np.float32(biggest)
+        pts2 = np.float32([[0, 0], [w, 0], [0, h], [w, h]])
+        matrix = cv2.getPerspectiveTransform(pts1, pts2)
+        imgCol = cv2.warpPerspective(img, matrix, (w, h))
+        return imgCol
 
 
-print(biggest)
-#op = np.hstack((img, thimg))
-cv2.imshow("img", imgCol)
-cv2.imshow("imgb", imgC)
+imgCol = pageDetect(img, kernal,)
+
+#cv2.imshow("img", imgCol)
+#cv2.imshow("imgb", img)
 cv2.waitKey(0)
 
 cv2.destroyAllWindows()
