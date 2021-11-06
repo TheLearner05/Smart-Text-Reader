@@ -7,7 +7,7 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 net = cv2.dnn.readNet(
-    r"L:\textDetection-Recognition\frozen_east_text_detection.pb")
+    r"D:\textDetection-Recognition\frozen_east_text_detection.pb")
 
 
 def text_detector(image):
@@ -97,7 +97,7 @@ def text_detector(image):
     return orig
 
 
-image0 = cv2.imread(r"C:\Users\jayhe\Desktop\test1.png")
+image0 =  cv2.imread(r"D:\final_year_project\Smart-Text-Reader\test8.jpeg")
 
 # array = [image0]
 cap = cv2.VideoCapture(0)

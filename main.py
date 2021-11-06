@@ -1,49 +1,57 @@
-
-import pytesseract
 import cv2
 import numpy as np
+import pytesseract
+import pyttsx3
+from deskew import deskew
+
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+from scipy import stats
+k1 = np.ones((3,17))
+k2 = np.ones((5,5))
+page = []
+img = cv2.imread(r"D:\final_year_project\Smart-Text-Reader\test1.jpeg")
+img1=img.copy()
+w,h,_ = img.shape
 
+img = deskew(img)
+lPage = img[0:w,0:h//2]
+rPage = img[0:w,(h//2):h]
 
-img = cv2.imread(r'L:\final_year_project\test2.PNG', 0)
-img = cv2.resize(img, (320, 480))
-h,w = img.shape
+page.append(lPage,rPage)
+for i in page
+img = cv2.resize(img, (int(h//1.5),int(w//1.5)))
+imgg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+img1 = np.array(255*(imgg/255)**2, dtype='uint8')
 
-sr,sc = int(0), int(0)
-er,ec= int(h/2),int(w)
-himg = img[sr:er,sc:ec]
-#img =cv2.pyrUp(img)
-img = cv2.convertScaleAbs(himg,  alpha=255/img.max(), beta=5)
+mean = np.mean(np.array(img1))
+median = np.median(np.array(img1))
+print(mean, median)
+imgb = cv2.GaussianBlur(img1, (3,3),0)
+canny = cv2.Canny(imgb, 70, 25,apertureSize=3, L2gradient=True)
+imgdi = cv2.dilate(canny, k1, iterations=1)
+imger = cv2.erode(imgdi, k2, iterations=1)
 
-imgeq = cv2.equalizeHist(img)
-cl = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-imgcl = cl.apply(img)
-op = np.hstack((img, imgcl))
-text = pytesseract.image_to_string(imgcl)
-cv2.imshow('rame', op)
+imgM = cv2.adaptiveThreshold(img1,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,15,19)
+gg=cv2.resize(imgM,None,fx=0.7,fy=0.7)
+cv2.imshow("gg",gg)
+cv2.imshow("imgg",imgM)
+text = pytesseract.image_to_string(imgM)
+
+text = text.replace("\n"," ")
+if ", " in text:
+        text=text.replace(", ",",")
 print(text)
-#ret,imgcl = cv2.threshold(img,10,255,cv2.THRESH_BINARY)
 
+def speak(text):
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    rate = engine.getProperty('rate')
+    engine.setProperty('voice', voices[1].id)
+    engine.setProperty('rate', rate-50)
+    engine.say(text)  
+# run and wait method, it processes the voice commands. 
+    engine.runAndWait()
+
+speak(text)
 cv2.waitKey(0)
-"""
-while(True):
-    ret, frame = cap.read()
-    if ret == True:
-        img = frame
-        img = cv2.resize(img, (512,512))
-
-
-        text = pytesseract.image_to_string(img)
-        cv2.imshow('rame',img)
-        print(text)
-
-        if cv2.waitKey(3000):
-			ans = input("do u want to go to next page")
-			if ans == "yes":
-
-    else:
-        break
-cap.release()
-"""
-
 cv2.destroyAllWindows()

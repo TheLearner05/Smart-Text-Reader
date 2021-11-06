@@ -1,8 +1,26 @@
+  
 import numpy as np
 import cv2
 
-img = cv2.imread(r"L:\final_year_project\Smart-Text-Reader\test1.jpg")
+img = cv2.imread(r"D:\final_year_project\Smart-Text-Reader\test1.jpg")
 kernal = np.ones((7, 2))
+
+
+def applyHE(img):
+    img = cv2.convertScaleAbs(img, alpha=1.3, beta=5)
+    clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(8, 8))
+    [b, g, r] = cv2.split(img)
+    b = clahe.apply(b)
+    g = clahe.apply(g)
+    r = clahe.apply(r)
+    nimg = cv2.merge([b, g, r])
+    return nimg
+
+
+imgah = applyHE(img)
+
+
+
 
 
 def proprocess(img, kernal):
@@ -15,7 +33,6 @@ def proprocess(img, kernal):
     imgdi = cv2.dilate(canny, kernal, iterations=1)
     imger = cv2.erode(imgdi, kernal, iterations=1)
     return imger
-
 
 def biggestContour(contours):
     biggest = np.array([])
@@ -50,7 +67,7 @@ def reorder(cpoints):
 
 
 def pageDetect(img, kernal):
-    img = cv2.resize(img, (512, 512))
+    img = cv2.resize(img, (720,640))
     h, w = img.shape[:2]
     imgC = img.copy()
     imger = proprocess(img, kernal)
@@ -63,13 +80,13 @@ def pageDetect(img, kernal):
         pts1 = np.float32(biggest)
         pts2 = np.float32([[0, 0], [w, 0], [0, h], [w, h]])
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
-        imgCol = cv2.warpPerspective(img, matrix, (w, h))
+        imgCol = cv2.warpPerspective(imgah, matrix, (w, h),flags=cv2.INTER_CUBIC)
         return imgCol
 
 
 imgCol = pageDetect(img, kernal,)
 
-#cv2.imshow("img", imgCol)
+cv2.imshow("img", imgCol)
 #cv2.imshow("imgb", img)
 cv2.waitKey(0)
 
