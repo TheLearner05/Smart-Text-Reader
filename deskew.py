@@ -49,15 +49,16 @@ def deskew(image):
 
         angle.append(math.degrees(math.atan((y2-y1)/(x2-x1))))
     angle1=sorted(angle,reverse=True)
-    print()    
+    
+    if angle1[0] >45:
+        ang =90-angle1[0]
+    else:
+        ang = -angle1[0]
+    print(ang) 
     cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 3)
-    cv2.imshow("Result Image",cv2.resize(image,None,fx=0.7,fy=0.7))
-    rotated = imutils.rotate_bound(image, -angle1[0])
-    return rotated
-img = cv2.imread(r"D:\final_year_project\Smart-Text-Reader\test8.jpg")
 
-op = deskew(img)
-cv2.imshow("op", op)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    rotated = imutils.rotate_bound(image, ang)
+    return rotated
+
+
 
